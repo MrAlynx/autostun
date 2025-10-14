@@ -32,14 +32,15 @@ function isFacing()
     let playerVec = Vector3.fromPitchYaw(Player.getPitch(), Player.getYaw());
     let thornDistance = Vector3.fromCoords(Player.x, Player.y, Player.z, thorn.x, thorn.y, thorn.z).normalize();
     let dot = playerVec.dotProduct(thornDistance);
-    return dot > 0.5; 
+    return dot > 0.90; 
 }
 
 const trigger = register("tick", (tick) => {
-        if (tick % 15 !== 0) return;
         if (!data.enabled) return;
         if (!bossRoomFlag) return;
+        else {thorn = World.getAllEntities().find(e => e.getClassName() === "EntityGhast");}
         if (!isFacing()) return;
+        if (tick % 15 !== 0) return;
         autoTribal();
 });
 
