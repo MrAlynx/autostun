@@ -13,7 +13,6 @@ const data = new PogObject("autostun", {
 	enabled: false
 });
 
-
 register("packetReceived", (packet, event) => {
     const message = ChatLib.removeFormatting(packet.func_148915_c().func_150260_c());
     if (message === "[BOSS] Thorn: Welcome Adventurers! I am Thorn, the Spirit! And host of the Vegan Trials!" && !bossRoomFlag) 
@@ -36,7 +35,6 @@ function isFacing()
     return dot > 0.5; 
 }
 
-
 const trigger = register("tick", (tick) => {
         if (tick % 15 !== 0) return;
         if (!data.enabled) return;
@@ -44,8 +42,6 @@ const trigger = register("tick", (tick) => {
         if (!isFacing()) return;
         autoTribal();
 });
-
-
 
 register("WorldUnload", () => {
     if (bossRoomFlag)
