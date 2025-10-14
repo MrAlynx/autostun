@@ -57,12 +57,10 @@ function autoTribal()
     if (now - lastUsed < 1000) return;
     const item = Player.getHeldItem();
     const sbId = item?.getNBT()?.toObject()?.tag?.ExtraAttributes?.id;
-    ChatLib.chat(sbId);
     if (sbId === "TRIBAL_SPEAR") 
         {
             Client.sendPacket(new C08PacketPlayerBlockPlacement(item.getItemStack()));
             lastUsed = now;
-            ChatLib.chat("Sending Tribal Spear packet");
         }
 }
 
