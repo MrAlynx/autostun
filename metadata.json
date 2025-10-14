@@ -1,0 +1,8 @@
+{
+  "name": "autostun",
+  "creator": "Alynx",
+  "description": "autostun",
+  "version": "1.0.0",
+  "entry": "index.js",
+  "requires": ["BloomCore", "PogData"]
+}
