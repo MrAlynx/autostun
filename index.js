@@ -54,6 +54,7 @@ register("WorldUnload", () => {
 
 function autoTribal() 
 {
+	if (Player.y > 82) return;
     const now = Date.now();
     if (now - lastUsed < 1000) return;
     const item = Player.getHeldItem();
