@@ -2,28 +2,36 @@
 
 import PogObject from "../PogData"
 import Vector3 from "../BloomCore/utils/Vector3"
-import {S02PacketChat} from "../BloomCore/utils/Utils"
+import {S02PacketChat, BlockPoss, Blocks} from "../BloomCore/utils/Utils"
+import {registerWhenInDungeon} from "../BloomCore/dungeon/Dungeon.js"
 
 const C08PacketPlayerBlockPlacement = Java.type("net.minecraft.network.play.client.C08PacketPlayerBlockPlacement");
 let bossRoomFlag = false;
 let lastUsed = 0;
 let thorn = null;
+let ticktrigger = tickregister(); 
+let bossentrytrigger = bossentry(); 
 
 const data = new PogObject("autostun", {
 	enabled: false
 });
 
-register("packetReceived", (packet, event) => {
+
+function bossentry() { 
+    return register("packetReceived", (packet, event) => {
     const message = ChatLib.removeFormatting(packet.func_148915_c().func_150260_c());
     if (message === "[BOSS] Thorn: Welcome Adventurers! I am Thorn, the Spirit! And host of the Vegan Trials!" && !bossRoomFlag) 
     {
+        tickregister();
         bossRoomFlag = true;
         setTimeout(() =>
             {
                 thorn = World.getAllEntities().find(e => e.getClassName() === "EntityGhast");
             }, 1000);
     }
-}).setFilteredClass(S02PacketChat)
+    }).setFilteredClass(S02PacketChat)
+
+}
 
 function isFacing()
 {
@@ -35,29 +43,23 @@ function isFacing()
     return dot > 0.90; 
 }
 
-const trigger = register("tick", (tick) => {
+function tickregister(){
+    ticktrigger = register("tick", (tick) => {
         if (!data.enabled) return;
         if (!bossRoomFlag) return;
-        else {thorn = World.getAllEntities().find(e => e.getClassName() === "EntityGhast");}
         if (!isFacing()) return;
         if (tick % 15 !== 0) return;
         autoTribal();
 });
-
-register("WorldUnload", () => {
-    if (bossRoomFlag)
-    { 
-        bossRoomFlag = false;
-        thorn = null;
-    }
-})
+}
 
 function autoTribal() 
 {
-	if (Player.y > 82) return;
+    if (Player.y > 82) return; 
     const now = Date.now();
     if (now - lastUsed < 1000) return;
     const item = Player.getHeldItem();
+    if (!item) return;
     const sbId = item?.getNBT()?.toObject()?.tag?.ExtraAttributes?.id;
     if (sbId === "TRIBAL_SPEAR") 
         {
@@ -66,8 +68,26 @@ function autoTribal()
         }
 }
 
+export function enable(){
+    bossRoomFlag = false;
+    thorn = null;
+    registerWhenInDungeon(ticktrigger,true);
+    registerWhenInDungeon(bossentrytrigger,true);
+}
+
+export function disable(){
+    data.enabled = false;
+    bossRoomFlag = false;
+    thorn = null;
+    data.save();
+}
+
 register("command", () => {
     data.enabled = !data.enabled;
 	ChatLib.chat("autostun: " + data.enabled);
+    if (data.enabled) enable();
+    else disable();
 	data.save();
 }).setName("autostun");
+
+export default { enable, disable };
